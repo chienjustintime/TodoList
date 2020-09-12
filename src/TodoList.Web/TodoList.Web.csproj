@@ -222,7 +222,6 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -238,8 +237,12 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TodoList.Bussiness\TodoList.Bussiness.csproj">
+      <Project>{1609ad89-b7bd-4e7d-9586-d9497c6367b2}</Project>
+      <Name>TodoList.Bussiness</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TodoList.Entity\TodoList.Entity.csproj">
-      <Project>{672a970a-2253-461c-bff1-9a52f8e854a6}</Project>
+      <Project>{672A970A-2253-461C-BFF1-9A52F8E854A6}</Project>
       <Name>TodoList.Entity</Name>
     </ProjectReference>
   </ItemGroup>

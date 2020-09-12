@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using TodoList.Bussiness.Interface.Service;
 using TodoList.Entity.Data;
 using TodoList.Entity.Interface;
 
@@ -10,38 +11,30 @@ namespace TodoList.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private IGenericRepository<TodoListItem> _todoListItemRepo;
-        private IUnitOfWork _unitOfWork;
-        public HomeController(IUnitOfWork UnitOfWork)
+        private ITodoListItemService _todoListItemService;
+
+        public HomeController(ITodoListItemService TodoListItemService)
         {
-            _unitOfWork = UnitOfWork;
-            _todoListItemRepo = UnitOfWork.Repository<TodoListItem>();
+            _todoListItemService = TodoListItemService;
         }
 
         public ActionResult Index()
         {
-            _todoListItemRepo.Create(new TodoListItem
-            {
-                Id = Guid.NewGuid(),
-                Name = "test",
-                Note = "testsetst",
-                Order = 1
-            });
-            _unitOfWork.SaveChanges();
-            var result = _todoListItemRepo.GetAll().ToList();
+            //_todoListItemRepo.Create(new TodoListItem
+            //{
+            //    Id = Guid.NewGuid(),
+            //    Name = "test",
+            //    Note = "testsetst",
+            //    Order = 1
+            //});
+            //_unitOfWork.SaveChanges();
+            var result =_todoListItemService.GetAll().ToList();
             return View();
         }
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Technologies";
 
             return View();
         }

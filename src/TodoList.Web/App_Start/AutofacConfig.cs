@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using TodoList.Entity.DbContextFactory;
@@ -41,11 +42,11 @@ namespace TodoList.Web
                     .As<IUnitOfWork>()
                     .InstancePerLifetimeScope();
 
-            ////services
-            //var services = Assembly.Load("NEC.PA.Bussiness");
-            //builder.RegisterAssemblyTypes(services)
-            //    .Where(t => t.Name.EndsWith("Service"))
-            //    .AsImplementedInterfaces();
+            //services
+            var services = Assembly.Load("TodoList.Bussiness");
+            builder.RegisterAssemblyTypes(services)
+                .Where(t => t.Name.EndsWith("Service"))
+                .AsImplementedInterfaces();
 
 
 
