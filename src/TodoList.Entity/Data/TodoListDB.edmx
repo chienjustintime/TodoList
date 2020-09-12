@@ -13,6 +13,8 @@
           <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Note" Type="nvarchar(max)" />
           <Property Name="Order" Type="int" Nullable="false" />
+          <Property Name="LastModifiedDate" Type="datetime" Nullable="false" />
+          <Property Name="CreatedDate" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityContainer Name="TodoListDatabaseModelStoreContainer">
           <EntitySet Name="TodoListItem" EntityType="Self.TodoListItem" Schema="dbo" store:Type="Tables" />
@@ -32,6 +34,8 @@
           <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Order" Type="Int32" Nullable="false" />
+          <Property Name="LastModifiedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -42,6 +46,8 @@
           <EntitySetMapping Name="TodoListItem">
             <EntityTypeMapping TypeName="TodoListDatabaseModel.TodoListItem">
               <MappingFragment StoreEntitySet="TodoListItem">
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="LastModifiedDate" ColumnName="LastModifiedDate" />
                 <ScalarProperty Name="Order" ColumnName="Order" />
                 <ScalarProperty Name="Note" ColumnName="Note" />
                 <ScalarProperty Name="Name" ColumnName="Name" />

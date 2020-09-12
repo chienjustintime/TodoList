@@ -11,24 +11,10 @@ namespace TodoList.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private ITodoListItemService _todoListItemService;
-
-        public HomeController(ITodoListItemService TodoListItemService)
-        {
-            _todoListItemService = TodoListItemService;
-        }
+       
 
         public ActionResult Index()
         {
-            //_todoListItemRepo.Create(new TodoListItem
-            //{
-            //    Id = Guid.NewGuid(),
-            //    Name = "test",
-            //    Note = "testsetst",
-            //    Order = 1
-            //});
-            //_unitOfWork.SaveChanges();
-            var result =_todoListItemService.GetAll().ToList();
             return View();
         }
 

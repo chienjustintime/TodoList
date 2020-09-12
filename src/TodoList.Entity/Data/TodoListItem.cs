@@ -18,5 +18,7 @@ namespace TodoList.Entity.Data
         public string Name { get; set; }
         public string Note { get; set; }
         public int Order { get; set; }
+        public System.DateTime LastModifiedDate { get; set; }
+        public System.DateTime CreatedDate { get; set; }
     }
 }
