@@ -21,16 +21,23 @@
         .list-item-cmd {
           margin-bottom:10px;
         }
+
+        .alert-anchor {
+            position: fixed;
+            right: 0;
+            left: 0;
+            border-width: 0 0 1px;
+            z-index:1000;
+        }
     </style>
 }
 
+<div id="alertarea" class="alert-anchor"></div>
 
 <div class="jumbotron">
     <h1>TodoList</h1>
     <p class="lead">It's a todo list app</p>
 </div>
-
-<div id="alertarea"></div>
 
 <div class="row">
     <div class="col-md-2 col-md-offset-10">
@@ -149,6 +156,25 @@
             });
         }
 
+        function deleteListItem(todoListItem) {
+            var params = Object.assign({}, todoListItem);
+            $.ajax({
+                method: "Post",
+                data: params,
+                url: todolist.url.destroy,
+                success: function (result) {
+                    if (result.IsSuccess) {
+                        //createListItems(todolist.id, [result.Data]);
+                        debugger
+                        deleteListItems([todoListItem]);
+                        showAlert("success", "delete success!");
+                    }
+                    else {
+                        showAlert("danger", "delete fail!");
+                    }
+                }
+            });
+        }
 
         //client-side
         function createListItems(listId,data) {
@@ -162,7 +188,7 @@
                                 '</li>';
                 return itemHtml;
             });
-            $("#" + listId).append(listItemsHtml);
+            $("#" + listId).prepend(listItemsHtml);
         }
 
         function deleteListItems(data) {
@@ -216,13 +242,23 @@
 
             });
 
-            $("#todolist").on("click", ".list-item-remove", function () {
-                alert("delete")
-                //var params = {
-                //    Name: $("#create-todolistitem-name").val()
-                //};
-                ////front end validation
+            $("#todolist").on("click", ".list-item-remove", function (e) {
+                var isDeleteConfirm = confirm("Are you sure you want to delete this item?");
+                if (!isDeleteConfirm)
+                {
+                    return;
+                }
+                var $todoListItemElement = $(e.target).parents(".list-item");
+                if ($todoListItemElement.length===0) {
+                    return;            
+                }
 
+                ////front end validation
+                var params = {
+                    Id:$todoListItemElement[0].id,
+                };
+         
+                deleteListItem(params);
                 //createListItem(params);
 
             });

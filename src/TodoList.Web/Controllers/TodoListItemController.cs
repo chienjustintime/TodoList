@@ -22,11 +22,12 @@ namespace TodoList.Web.Controllers
         public JsonResult GetAll()
         {
             var TodoListItems = _todoListItemService.GetAll();
-            var Result = TodoListItems.Select(d => new TodoListItemViewModel {
-                Id=d.Id,
-                Name=d.Name,
-                LastModifiedDate=d.LastModifiedDate
-            });
+            var Result = TodoListItems.OrderByDescending(d=>d.Order)
+                                      .Select(d => new TodoListItemViewModel {
+                                            Id=d.Id,
+                                            Name=d.Name,
+                                            LastModifiedDate=d.LastModifiedDate
+                                        });
 
             return Json(new 
             {
@@ -100,35 +101,31 @@ namespace TodoList.Web.Controllers
         }
 
         [HttpPost]
-        public JsonResult Delete(TodoListItemUpdateViewModel Instance)
+        public JsonResult Delete(Guid Id)
         {
 
-            if (!ModelState.IsValid) {
+            if (Id==Guid.Empty) {
                 return Json(new
                 {
-                    IsSuccess = ModelState.IsValid,
-                    ErrorMessage =string.Join(", ", ModelState.Values.SelectMany(v => v.Errors)) 
+                    IsSuccess =false,
+                    ErrorMessage ="Request Parameters error" 
                 }, JsonRequestBehavior.DenyGet);
             }
 
-            var TodoListItem = new TodoListItemDTO
-            {
-                Name = Instance.Name
-            };
-            var UpdateResult = _todoListItemService.Delete(Instance.Id);
-            if (!UpdateResult.IsSuccess)
+            var DeleteResult = _todoListItemService.Delete(Id);
+            if (!DeleteResult.IsSuccess)
             {
                 return Json(new
                 {
-                    IsSuccess = UpdateResult.IsSuccess,
-                    ErrorMessage = UpdateResult.Message
+                    IsSuccess = DeleteResult.IsSuccess,
+                    ErrorMessage = DeleteResult.Message
                 }, JsonRequestBehavior.DenyGet);
             }
 
             return Json(new
             {
-                IsSuccess = UpdateResult.IsSuccess,
-                Data = UpdateResult.ResultItems.FirstOrDefault()
+                IsSuccess = DeleteResult.IsSuccess,
+                Data = DeleteResult.ResultItems.FirstOrDefault()
             }, JsonRequestBehavior.DenyGet);
         }
 
