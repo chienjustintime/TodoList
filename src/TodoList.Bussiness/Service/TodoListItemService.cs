@@ -32,7 +32,7 @@ namespace TodoList.Bussiness.Service
             };
             try
             {
-                TodoListItemRepo.Create(TodoItemEntity);
+                TodoListItemRepo.Create(TodoItemEntity);             
                 _unitOfWork.SaveChanges();
             }
             catch (Exception ex)
@@ -40,7 +40,12 @@ namespace TodoList.Bussiness.Service
                 Result.IsSuccess = false;
                 Result.Message = ex.Message;
             }
- 
+            Instance.Id = TodoItemEntity.Id;
+            Instance.LastModifiedDate = TodoItemEntity.LastModifiedDate;
+            Instance.Order = TodoItemEntity.Order;
+
+            Result.ResultItems.Add(Instance);
+
             return Result;
         }
 

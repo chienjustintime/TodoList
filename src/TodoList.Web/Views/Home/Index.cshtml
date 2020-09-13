@@ -1,42 +1,243 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
+@section styles{
+    <style>
+        .list-item {
+          display: flex;
+        }
+        .list-item p {
+            flex: 7 0;
+            word-wrap: break-word;
+            min-width: 0;
+            margin: 5px auto;
+        }
+        .list-item .list-item-cmdgroup{
+            flex: 1 0;
+            justify-content:center;
+            display: flex;
+        }
+
+        .list-item-cmd {
+          margin-bottom:10px;
+        }
+    </style>
+}
+
 
 <div class="jumbotron">
     <h1>TodoList</h1>
     <p class="lead">It's a todo list app</p>
 </div>
 
+<div id="alertarea"></div>
+
+<div class="row">
+    <div class="col-md-2 col-md-offset-10">
+        <button type="button" class="btn btn-primary btn-lg btn-block list-item-cmd list-item-add" data-toggle="modal" data-target="#createModal">Create</button>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
-        <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
+        <ul class="list-group customlist" id="todolist">
+
         </ul>
     </div>
 </div>
 
+
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLongTitle">Modal title</h5>
+            </div>
+            <div class="modal-body">
+                <form id="create-todolistItem-form">
+                    <div class="form-group">
+                        <label for="create-todolistitem-name" class="control-label">名稱</label>
+                        <input type="text" class="form-control" id="create-todolistitem-name" placeholder="請輸入名稱...">
+                    </div>
+                </form>              
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveTodoListItemBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLongTitle">Modal title</h5>
+            </div>
+            <div class="modal-body">
+                <form id="edit-todolistItem-form">
+                    <div class="form-group">
+                        <label for="edit-todolistitem-name" class="control-label">名稱</label>
+                        <input type="text" class="form-control" id="edit-todolistitem-name" placeholder="請輸入名稱...">
+                    </div>
+                </form>   
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="updateTodoListItemBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section scripts{
     <script>
-        //function getTodoListItems() {
-        //    $.ajax({
-        //        url: "demo_test.txt",
-        //        success: function (result) {
-                   
-        //            $("#div1").html(result);
-        //        }
-        //    });
-        //}
+        //namespace
+        var todolist = {
+            id: "todolist",
+            url: {
+                read: "@Url.Action("GetAll","TodoListItem")",
+                create: "@Url.Action("Create", "TodoListItem")",
+                update: "@Url.Action("Update", "TodoListItem")",
+                destroy: "@Url.Action("Delete", "TodoListItem")"
+            },
+            alertTypeList:["success", "info", "warning", "danger"]
+        };
 
-        //function
+        function initTodoListItems(){
+            emptyListItems();
+            getTodoListItems();
+        }
 
-        //$(document).ready(function () {
-        
+        //ajax-callback
+        function getTodoListItems() {
+            $.ajax({
+                url: todolist.url.read,
+                success: function (result) {
+                    createListItems(todolist.id, result.data);
+                }
+            });
+        }
 
-        //});
+        function createListItem(todoListItem) {
+            var params = Object.assign({}, todoListItem);
+            $.ajax({
+                method: "Post",
+                data: params,
+                url: todolist.url.create,
+                success: function (result) {
+                    if (result.IsSuccess)
+                    {
+                        createListItems(todolist.id, [result.Data]);
+                        showAlert("success", "create success!");
+
+                        //modal behavior
+                        $('#createModal').modal('hide');
+                        var $form = $("#create-todolistItem-form");
+                        if ($form.length !== 0)
+                        {
+                            $form[0].reset();
+                        }
+                    }
+                    else
+                    {
+                        showAlert("danger", "create fail!");
+                    }
+                }
+            });
+        }
+
+
+        //client-side
+        function createListItems(listId,data) {
+            var listItemsHtml= data.map(function(i){
+                var itemHtml = '<li id="' + i.Id + '" class="list-group-item list-item">'+
+                                    '<p>' + i.Name + '</p>'+
+                                    '<div class="list-item-cmdgroup">'+
+                                            '<span class="btn btn-light glyphicon glyphicon-pencil list-item-edit" data-toggle="modal" data-target="#editModal"></span>' +
+                                            '<span class="btn btn-light glyphicon glyphicon-remove list-item-remove"></span>' +
+                                    '</div>'+
+                                '</li>';
+                return itemHtml;
+            });
+            $("#" + listId).append(listItemsHtml);
+        }
+
+        function deleteListItems(data) {
+            data.forEach(function (i) {
+                $("#" + i.Id).remove()
+            });
+        }
+
+        function emptyListItems(listId) {
+            $("#"+listId).empty("");
+        }
+
+        function updateListItem(listItem) {
+            var $nameElement = $("#" + listItem.Id).children("p");
+            $nameElement.html(listItem.Name);
+        }
+
+        //alert
+        function showAlert(type, msg) {
+            var typelist = todolist.alertTypeList;
+            var typeIndex = typelist.indexOf(type);
+            if (typeIndex < 0) {
+                return;
+            }
+
+            var alertType = 'alert-' + typelist[typeIndex];
+            var alertHtml = '<div class="alert alert-dismissible ' + alertType + '" role="alert">' +
+                                '<p>'+msg+ '</p>'
+                                '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                                '<strong>Warning!</strong> Better check yourself, you\'re not looking too good.' +
+                            '</div>';
+             $("#alertarea").html(alertHtml);
+
+             setTimeout(hideAlert, 3000);
+        }
+
+        function hideAlert() {
+            $(".alert").alert('close');
+        }
+
+        $(document).ready(function () {
+            initTodoListItems();
+
+            $("#saveTodoListItemBtn").on("click", function () {
+                var params = {
+                    Name: $("#create-todolistitem-name").val()
+                };
+                //front end validation
+
+                createListItem(params);
+
+            });
+
+            $("#todolist").on("click", ".list-item-remove", function () {
+                alert("delete")
+                //var params = {
+                //    Name: $("#create-todolistitem-name").val()
+                //};
+                ////front end validation
+
+                //createListItem(params);
+
+            });
+
+            $("#updateTodoListItemBtn").on("click", function () {
+                alert("save edit")
+                //var params = {
+                //    Name: $("#create-todolistitem-name").val()
+                //};
+                ////front end validation
+
+                //createListItem(params);
+
+            });
+        });
     </script>
         
 }

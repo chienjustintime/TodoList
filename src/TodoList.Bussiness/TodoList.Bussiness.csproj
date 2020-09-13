@@ -45,7 +45,7 @@
     <Compile Include="Misc\Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\TodoListItemService.cs" />
-    <Compile Include="TodoListItemDTO.cs" />
+    <Compile Include="DTO\TodoListItemDTO.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TodoList.Entity\TodoList.Entity.csproj">
