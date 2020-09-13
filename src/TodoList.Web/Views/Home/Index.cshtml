@@ -27,7 +27,7 @@
             right: 0;
             left: 0;
             border-width: 0 0 1px;
-            z-index:1000;
+            z-index:1042;
         }
     </style>
 }
@@ -36,7 +36,7 @@
 
 <div class="jumbotron">
     <h1>TodoList</h1>
-    <p class="lead">It's a todo list app</p>
+    <p class="lead">todo list app with crud features</p>
 </div>
 
 <div class="row">
@@ -58,7 +58,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createModalLongTitle">Modal title</h5>
+                <h5 class="modal-title" id="createModalLongTitle">新建</h5>
             </div>
             <div class="modal-body">
                 <form id="create-todolistItem-form">
@@ -80,10 +80,14 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editModalLongTitle">Modal title</h5>
+                <h5 class="modal-title" id="editModalLongTitle">編輯</h5>
             </div>
             <div class="modal-body">
                 <form id="edit-todolistItem-form">
+                    <div class="form-group" style="display:none">
+                        <label for="edit-todolistitem-id" class="control-label">Id</label>
+                        <input type="text" class="form-control" id="edit-todolistitem-id" readonly>
+                    </div>
                     <div class="form-group">
                         <label for="edit-todolistitem-name" class="control-label">名稱</label>
                         <input type="text" class="form-control" id="edit-todolistitem-name" placeholder="請輸入名稱...">
@@ -98,7 +102,6 @@
     </div>
 </div>
 
-
 @section scripts{
     <script>
         //namespace
@@ -106,7 +109,7 @@
             id: "todolist",
             url: {
                 read: "@Url.Action("GetAll","TodoListItem")",
-                create: "@Url.Action("Create", "TodoListItem")",
+                save: "@Url.Action("Create", "TodoListItem")",
                 update: "@Url.Action("Update", "TodoListItem")",
                 destroy: "@Url.Action("Delete", "TodoListItem")"
             },
@@ -128,12 +131,12 @@
             });
         }
 
-        function createListItem(todoListItem) {
+        function saveListItem(todoListItem) {
             var params = Object.assign({}, todoListItem);
             $.ajax({
                 method: "Post",
                 data: params,
-                url: todolist.url.create,
+                url: todolist.url.save,
                 success: function (result) {
                     if (result.IsSuccess)
                     {
@@ -156,6 +159,28 @@
             });
         }
 
+
+        function updateListItem(todoListItem) {
+            var params = Object.assign({}, todoListItem);
+            $.ajax({
+                method: "Post",
+                data: params,
+                url: todolist.url.update,
+                success: function (result) {
+                    if (result.IsSuccess) {
+                      
+                        showAlert("success", "update success!");
+                        editListItem(todoListItem);
+                        //modal behavior
+                        $('#editModal').modal('hide');
+                    }
+                    else {
+                        showAlert("danger", "update fail!");
+                    }
+                }
+            });
+        }
+
         function deleteListItem(todoListItem) {
             var params = Object.assign({}, todoListItem);
             $.ajax({
@@ -164,8 +189,6 @@
                 url: todolist.url.destroy,
                 success: function (result) {
                     if (result.IsSuccess) {
-                        //createListItems(todolist.id, [result.Data]);
-                        debugger
                         deleteListItems([todoListItem]);
                         showAlert("success", "delete success!");
                     }
@@ -201,7 +224,7 @@
             $("#"+listId).empty("");
         }
 
-        function updateListItem(listItem) {
+        function editListItem(listItem) {
             var $nameElement = $("#" + listItem.Id).children("p");
             $nameElement.html(listItem.Name);
         }
@@ -233,12 +256,17 @@
             initTodoListItems();
 
             $("#saveTodoListItemBtn").on("click", function () {
-                var params = {
-                    Name: $("#create-todolistitem-name").val()
-                };
-                //front end validation
+                var todoListItemName = $("#create-todolistitem-name").val();
+                if (todoListItemName==="") {
 
-                createListItem(params);
+                    showAlert("warning", "please type todolist item's name");
+                    return;
+                }
+                var params = {
+                    Name: todoListItemName
+                };
+
+                saveListItem(params);
 
             });
 
@@ -259,19 +287,39 @@
                 };
          
                 deleteListItem(params);
-                //createListItem(params);
 
             });
 
+
+            $('#editModal').on('show.bs.modal', function (event) {
+
+                var $button = $(event.relatedTarget)
+                var $todoListItemElement = $button.parents(".list-item");
+                if ($todoListItemElement.length === 0) {
+                    return;
+                }
+                var id = $todoListItemElement[0].id;
+                var name = $todoListItemElement.find("p");
+                $("#edit-todolistitem-name").val(name.text());
+                $("#edit-todolistitem-id").val(id);
+
+                
+            });
+
             $("#updateTodoListItemBtn").on("click", function () {
-                alert("save edit")
-                //var params = {
-                //    Name: $("#create-todolistitem-name").val()
-                //};
-                ////front end validation
+                var todoListItemName = $("#edit-todolistitem-name").val();
+                if (todoListItemName === "") {
 
-                //createListItem(params);
+                    showAlert("warning", "please type todolist item's name");
+                    return;
+                }
 
+                var params = {
+                    Id:  $("#edit-todolistitem-id").val(),
+                    Name: todoListItemName
+                };
+
+                updateListItem(params);
             });
         });
     </script>

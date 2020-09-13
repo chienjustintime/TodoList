@@ -81,6 +81,7 @@ namespace TodoList.Web.Controllers
 
             var TodoListItem = new TodoListItemDTO
             {
+                Id= Instance.Id,
                 Name = Instance.Name
             };
             var UpdateResult = _todoListItemService.Update(TodoListItem);
