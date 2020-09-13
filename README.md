@@ -1,5 +1,5 @@
 # TodoList
-This is an sample project for demonstrating crud and project layer architectureW
+This is an sample project for demonstrating crud and project layer architecture
 
 # Technologies #
 - ASP.NET MVC5
